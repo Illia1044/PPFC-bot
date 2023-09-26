@@ -164,3 +164,17 @@ def getAdminPinFromApi(headers, pin):
     pinStatus = x.text
 
     return pinStatus
+
+def getBellSchedule(headers):
+    url = baseLink + '/bellSchedule'
+    x = requests.get(url, headers = headers)
+    BellSchedule = x.text
+    
+    return BellSchedule
+
+def getWorkSaturdays(headers):
+    url = baseLink + '/workingSaturdays'
+    x = requests.get(url, headers = headers)
+    workSaturdays = x.text
+
+    return workSaturdays

@@ -71,7 +71,8 @@ disciplinesButtonsNames = disciplinesList(disciplinesApi(headers))
 
 @tbot.message_handler(commands=["start"])
 def start(message):
-    recreateToken(headers)
+    global headers
+    headers = recreateToken(headers)
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
@@ -87,7 +88,8 @@ def start(message):
 
 @tbot.message_handler(commands=["change"])
 def changeData(message):
-    recreateToken(headers)
+    global headers
+    headers = recreateToken(headers)
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.registerMarkup(userId, headers)
@@ -102,7 +104,8 @@ def changeData(message):
 
 @tbot.message_handler(commands=["admin"])
 def admin(message):
-    recreateToken(headers)
+    global headers
+    headers = recreateToken(headers)
     userId = message.from_user.id
     markup = botMarkup.mainMenuButtonMarkup()
     replyMessage = "Введіть код адміністратора"
@@ -184,11 +187,16 @@ def messageListener(message):
 
 
     if message.text == MainMenuButtons.CHANGES_TODAY.value:
+        
+        headers = recreateToken(headers)
+
         today = dayToday().strftime("%Y-%m-%d")
         fullChanges = True
         showChanges(message, headers, today, fullChanges)
 
     if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
+        
+        headers = recreateToken(headers)
         tomorrow = dayTomorrow().strftime("%Y-%m-%d")
         fullChanges = True
         showChanges(message, headers, tomorrow, fullChanges)
@@ -276,17 +284,22 @@ def messageListener(message):
     if message.text == AdditionalFuncButtons.WORK_SATURDAYS:
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
+            workSaturdaysStruct = getWorkSaturdays(headers)
+            workSaturdaysText = json.loads(workSaturdaysStruct)['text']
+            if workSaturdaysText.strip() == '':
+                workSaturdaysText = "Робочі суботи відсутні"
             
             print("Working saturdays")
-            tbot.send_message(chat_id=message.chat.id, text= "Відсутні")
+            markup = botMarkup.mainMenuMarkup()
+            tbot.send_message(chat_id=message.chat.id, text = workSaturdaysText, reply_markup = markup)
 
     if message.text == AdditionalFuncButtons.EDU_PROCESS:
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
 
             text = ""
-            text += "Повний розклад поки що відсутній. \n"
-            text += "Його буде додано пізніше у ході супроводу"
+            text += "За цим посиланням ви можете переглянути розклад та графік НП: \n"
+            text += "https://sites.google.com/polytechnic.co.cc/main/розклад-занять"
 
             print("Education Process Plan")
             tbot.send_message(chat_id=message.chat.id, text= text)
@@ -303,12 +316,16 @@ def messageListener(message):
     if message.text == AdditionalFuncButtons.RINGS_SCHEDULE:
         headers = recreateToken(headers)
         if checkRegistration(message,headers):
+            bellScheduleStruct = getBellSchedule(headers)
+            bellScheduleText = json.loads(bellScheduleStruct)['text']
+            if bellScheduleText.strip() == '':
+                bellScheduleText = "Розклад дзвінків відсутній"
+            
 
             markup = botMarkup.mainMenuMarkup()
             
             print("Show ring schedule")
-            imageName = "data/ringSchedule.png"
-            tbot.send_photo(chat_id=message.chat.id, photo=open(imageName, 'rb'), reply_markup = markup)
+            tbot.send_message(chat_id=message.chat.id, text = bellScheduleText, reply_markup = markup)
 
 
 
@@ -382,6 +399,7 @@ def finalTeacherSearch(message, headers, par):
         returnToMainMenu(message)
     else:
         par = message.text
+        print(par)
         teacherData = getTeacherIdForUse(headers, par)
         print(teacherData)
         teacherId = extractTeacherId(teacherData)
@@ -472,7 +490,6 @@ def showChanges(message, headers, date, fullChanges):
                 user = checkUserPerson(headers,userId)
             userGroup = -1
 
-        print(userMarker)
         change = getChanges(headers, date, user)
 
         if str(date) == str (today):
@@ -488,7 +505,8 @@ def showChanges(message, headers, date, fullChanges):
 
 #--------------------------------------- Admin Panel -------------------------------------------
 def getAdminPin(message):
-    recreateToken(headers)
+    global headers
+    headers = recreateToken(headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -515,7 +533,8 @@ def getAdminPin(message):
 
 
 def getMessage(message):
-    recreateToken(headers)
+    global headers
+    headers = recreateToken(headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
@@ -528,7 +547,8 @@ def getMessage(message):
                 
 
 def confirmation(message, adminMessage):
-    recreateToken(headers)
+    global headers
+    headers = recreateToken(headers)
     if MainMenuCheck(message):
         returnToMainMenu(message)
 
@@ -660,7 +680,6 @@ def getRegGroupId(message, headers):
         par = message.text
         groupData = getGroupByNumber(headers, par)
         groupId = extractGroupId(groupData)
-
         print("Register as student: done")
 
         userId = message.from_user.id
@@ -673,7 +692,7 @@ def getRegGroupId(message, headers):
         markup = botMarkup.mainMenuMarkup()
         userData = getUserId(getUserById(userId, headers))
                 
-        tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися,, перевірити правильність можна у вкладці 'Допомога'", reply_markup=markup)
+        tbot.send_message(chat_id=message.chat.id, text = "Ви зареєструвалися, перевірити правильність можна у вкладці 'Допомога'", reply_markup=markup)
 
 
 

@@ -55,9 +55,9 @@ def isCurrentWeekNumerator(isCurrentDay):
     week_diff = current_week.isocalendar()[1] - september_1st.isocalendar()[1]
 
     if week_diff % 2 == 0:
-        return True
+        return 'NUMERATOR'
     else:
-        return False
+        return 'DENOMINATOR'
 
 #----------------------- Message Control --------------------------
 tag: str = "BOT"
@@ -386,7 +386,7 @@ def scheduleByDay(message, headers):
         
         markup = botMarkup.mainMenuMarkup()
         user = getUserId(getUserById(userId, headers))
-        scheduleForm = scheduleCreator(schedule, None, user.isStudent)
+        scheduleForm = scheduleCreator(schedule, 'BOTH', user.isStudent)
         if scheduleForm == " ":
             scheduleForm = "Розклад на цей день відсутній"
         tbot.send_message(chat_id=message.chat.id, text= scheduleForm, parse_mode="Markdown")
@@ -410,7 +410,7 @@ def finalTeacherSearch(message, headers, par):
         
         schedule = getScheduleByTeacher(headers,par)
         user = False
-        formatedSchedule = scheduleCreator(schedule, None, user)
+        formatedSchedule = scheduleCreator(schedule, 'BOTH', user)
         if formatedSchedule == " ":
                 formatedSchedule = "Розклад для цього викладача відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup, parse_mode="Markdown")
@@ -431,7 +431,7 @@ def finalGroupSearch(message, headers, par):
         markup = botMarkup.mainMenuMarkup()
         schedule = getScheduleByGroup(headers,par)
         user = True
-        formatedSchedule = scheduleCreator(schedule, None, user)
+        formatedSchedule = scheduleCreator(schedule, 'BOTH', user)
         if formatedSchedule == " ":
                 formatedSchedule = "Розклад для цієї групи відсутній"
         tbot.send_message(chat_id=message.chat.id, text= formatedSchedule, reply_markup = markup, parse_mode="Markdown")

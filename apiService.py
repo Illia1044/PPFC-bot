@@ -25,7 +25,7 @@ def authenticate():
     auth = json.loads(x.text)
     accToken = auth["accessToken"]
     #print(accToken)
-    print("TOKEN GENERATED")
+    print("-- TOKEN GENERATED --")
     headers = {'Authorization': "Bearer {}".format(accToken)}
 
     return headers
@@ -127,8 +127,7 @@ def getScheduleByGroup(headers, par):
     url = baseLink + '/schedule?groupId='+ str(par)
     x = requests.get(url, headers = headers)
     scheduleGroup = json.loads(x.text)
-    sorted_data = sorted(scheduleGroup, key=lambda x: (x['dayNumber'], x['lessonNumber'], not x['isNumerator']))
-
+    sorted_data = sorted(scheduleGroup, key=lambda x: (x['dayNumber'], x['lessonNumber']))
     schedule = json.dumps(sorted_data)
     return schedule
 
@@ -136,8 +135,7 @@ def getScheduleByTeacher(headers, par):
     url = baseLink + '/schedule?teacherId='+ str(par)
     x = requests.get(url, headers = headers)
     scheduleTeacher = json.loads(x.text)
-    sorted_data = sorted(scheduleTeacher, key=lambda x: (x['dayNumber'], x['lessonNumber'], not x['isNumerator']))
-
+    sorted_data = sorted(scheduleTeacher, key=lambda x: (x['dayNumber'], x['lessonNumber'], not x['weekAlternation']))
     schedule = json.dumps(sorted_data)
     return schedule
 

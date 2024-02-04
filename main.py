@@ -399,9 +399,7 @@ def finalTeacherSearch(message, headers, par):
         returnToMainMenu(message)
     else:
         par = message.text
-        print(par)
         teacherData = getTeacherIdForUse(headers, par)
-        print(teacherData)
         teacherId = extractTeacherId(teacherData)
         print("Find by teacher: done")
 

@@ -60,12 +60,24 @@ def scheduleCreator(dict, state, userState):
             lessons.sort(reverse=True, key = lambda d: d[5])
             for lesson in lessons:
 
-                ending = " ауд."
-                if str(lesson[4]) == "Зал" or str(lesson[4]) == "зал" :
+                ending = " ауд. "
+                if str(lesson[4]) == "Зал " or str(lesson[4]) == "зал " :
                     ending = ""
+                
+                if str(state) == 'BOTH':
+                    ending += formatWeekAlternation(str(lesson[5]))
 
-                if state == 'BOTH':
-                    ending += " " + formatWeekAlternation(lesson[5])
+                if str(state) == 'NUMERATOR':
+                    if lesson[5] == state:
+                        ending += formatWeekAlternation(str(lesson[5]))
+                    if lesson[5] == 'DENOMINATOR':
+                        continue
+
+                if str(state) == 'DENOMINATOR':
+                    if lesson[5] == state:
+                        ending += formatWeekAlternation(str(lesson[5]))
+                    if lesson[5] == 'NUMERATOR':
+                        continue
 
                 ending += "\n"
                 if userState == True:

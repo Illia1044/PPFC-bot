@@ -31,15 +31,18 @@ def dayToday():
 
 def dayTomorrow():
     ukraine_time = timezone('Europe/Kiev')
-    tomorrow = datetime.datetime.now(ukraine_time) + datetime.timedelta(days = 1)
-    return tomorrow
+    weekDay = datetime.datetime.now(ukraine_time).weekday() + 1
+    daysDifference = 1
+    if weekDay >= 5:
+        daysDifference = 8 - weekDay
+    return datetime.datetime.now(ukraine_time) + datetime.timedelta(days = daysDifference)
+
 
 today = dayToday()
 tomorrow = dayTomorrow()
 
 print("Today: "+str(today.strftime("%Y-%m-%d")))
-print("Next day: "+str(tomorrow.strftime("%Y-%m-%d")))
-
+print("Next schedule day: "+str(tomorrow.strftime("%Y-%m-%d")))
 
 # ----------------------------Chiselnik/Znamenik---------------------
 def isCurrentWeekNumerator(isCurrentDay):
@@ -167,8 +170,6 @@ def messageListener(message):
         if checkRegistration(message,headers):
             tomorrowDate = dayTomorrow().weekday() + 1
 
-            if tomorrowDate > 5:
-                tomorrowDate = 1
             userId = message.from_user.id
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, tomorrowDate, userData)
@@ -197,6 +198,7 @@ def messageListener(message):
     if message.text == MainMenuButtons.CHANGES_TOMORROW.value:
         
         headers = recreateToken(headers)
+
         tomorrow = dayTomorrow().strftime("%Y-%m-%d")
         fullChanges = True
         showChanges(message, headers, tomorrow, fullChanges)

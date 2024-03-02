@@ -5,13 +5,12 @@
 import os
 
 class Constants(object):
-    version ="(v1.0.5)"
+    version ="(v1.0.6)"
 
     botToken = os.environ['BOT_TOKEN']
     username = os.environ['USERNAME']
     password = os.environ['PASSWORD']
     baseLink = os.environ['BASE_LINK']
-
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):

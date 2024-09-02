@@ -48,14 +48,18 @@ print("Next schedule day: "+str(tomorrow.strftime("%Y-%m-%d")))
 def isCurrentWeekNumerator(isCurrentDay):
     current_year = datetime.datetime.today().year
 
-    september_1st = datetime.datetime(current_year, 9, 1)
+    september1 = datetime.datetime(current_year, 9, 1)
+    september1Weekday = september1.weekday() + 1
+    firstEdWeek = 0
+    if september1Weekday > 5:
+        firstEdWeek = september1 + datetime.timedelta(days = 8 - september1Weekday)
 
     current_week = datetime.datetime.today()
 
     if isCurrentDay == False:
         current_week = current_week + datetime.timedelta(days = 3)
 
-    week_diff = current_week.isocalendar()[1] - september_1st.isocalendar()[1]
+    week_diff = current_week.isocalendar()[1] - firstEdWeek.isocalendar()[1]
 
     if week_diff % 2 == 0:
         return 'NUMERATOR'
@@ -79,12 +83,12 @@ def start(message):
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.mainMenuMarkup()
-        print("/start: user already exists")
+        print("/start: user already exists: TGID " + str(message.from_user.username) + " " + str(message.from_user.id))
         tbot.send_message(chat_id=message.chat.id, text = "Бота перезавантажено. Ми вас вже знаємо у базі, продовжуйте роботу!", reply_markup=markup)
 
     else: 
         replyMessage = "Зареєструйтеся. Оберіть хто ви:"
-        print("/start: user registration")
+        print("/start: user registration: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         markup = botMarkup.registerMarkup(userId, headers)
         tbot.send_message(chat_id=message.chat.id, text=replyMessage, reply_markup=markup)
 
@@ -96,11 +100,11 @@ def changeData(message):
     userId = message.from_user.id
     if checkUser(userId, headers):
         markup = botMarkup.registerMarkup(userId, headers)
-        print("/change: users new data ")
+        print("/change: users new data: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         tbot.send_message(chat_id=message.chat.id, text = "Режим зміни користувача. Оберіть хто ви:", reply_markup=markup)
     else: 
         replyMessage = "Неможливо змінити, так як ви у нас вперше. Оберіть хто ви:"
-        print("/change: user does not exists")
+        print("/change: user does not exists: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         markup = botMarkup.registerMarkup(userId, headers)
         tbot.send_message(chat_id=message.chat.id, text=replyMessage, reply_markup=markup)
 
@@ -113,7 +117,7 @@ def admin(message):
     markup = botMarkup.mainMenuButtonMarkup()
     replyMessage = "Введіть код адміністратора"
     
-    print("/admin panel accessed")
+    print("/admin panel accessed: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
     tbot.send_message(chat_id=message.chat.id, text=replyMessage, reply_markup=markup)
     tbot.register_next_step_handler(message, getAdminPin)
@@ -152,7 +156,7 @@ def messageListener(message):
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, todayDate, userData)
                 
-            print("Schedule for today")
+            print("Schedule for today: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
             user = getUserId(getUserById(userId, headers))
             scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator(True), user.isStudent)
@@ -174,7 +178,7 @@ def messageListener(message):
             userData = checkUserPerson(headers,userId)
             schedule = getScheduleForRegUser(headers, tomorrowDate, userData)
                 
-            print("Schedule for tomorrow")
+            print("Schedule for tomorrow: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
             user = getUserId(getUserById(userId, headers))
             scheduleForm = scheduleCreator(schedule, isCurrentWeekNumerator(False), user.isStudent)
@@ -212,7 +216,7 @@ def messageListener(message):
 
             disciplines = disciplinesApi(headers)
             disciplinesButtonsNames = disciplinesList(disciplines)
-            print("Find by teacher: discipline")
+            print("Find by teacher: discipline: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
    
             markup = botMarkup.tripleMarkup(disciplinesButtonsNames)
             tbot.send_message(chat_id=message.chat.id, text= "Оберіть циклову комісію:", reply_markup=markup)
@@ -226,7 +230,7 @@ def messageListener(message):
 
             courses = coursesApi(headers)
             coursesButtonsNames = coursesList(courses)
-            print("Find by group: course")
+            print("Find by group: course: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
                     
             markup = botMarkup.doubleMarkup(coursesButtonsNames)
             tbot.send_message(chat_id=message.chat.id, text= "Оберіть курс групи:", reply_markup=markup)
@@ -237,7 +241,7 @@ def messageListener(message):
         headers = recreateToken(headers)
         if checkRegistration(message, headers):
             markup = botMarkup.findByDayWMarkup()
-            print("Find by day: day")
+            print("Find by day: day: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             tbot.send_message(chat_id=message.chat.id, text="Оберіть день тижня", reply_markup=markup)
             tbot.register_next_step_handler(message, scheduleByDay, headers)
 
@@ -264,7 +268,7 @@ def messageListener(message):
             helpInstruction += "Ваші реєстраційні дані: {}".format(data) 
 
             markup = botMarkup.mainMenuMarkup()
-            print("Button Help")
+            print("Button Help: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             tbot.send_message(chat_id=message.chat.id, text=helpInstruction, reply_markup=markup)
 
     if message.text == MainMenuButtons.ADDITIONAL_FUNCTIONS.value:
@@ -272,7 +276,7 @@ def messageListener(message):
         if checkRegistration(message,headers):
             markup = botMarkup.additionalFuncMarkup()
     
-            print("Additional functions")
+            print("Additional functions: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             tbot.send_message(chat_id=message.chat.id, text= "Доступні додаткові функції", reply_markup=markup)
 
     if message.text == AdditionalFuncButtons.CHANGE_DATA:
@@ -280,7 +284,7 @@ def messageListener(message):
         if checkRegistration(message,headers):
             markup = botMarkup.mainMenuMarkup()
     
-            print("Change data through additional functions")
+            print("Change data through additional functions: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             changeData(message)
 
     if message.text == AdditionalFuncButtons.WORK_SATURDAYS:
@@ -291,7 +295,7 @@ def messageListener(message):
             if workSaturdaysText.strip() == '':
                 workSaturdaysText = "Робочі суботи відсутні"
             
-            print("Working saturdays")
+            print("Working saturdays: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             markup = botMarkup.mainMenuMarkup()
             tbot.send_message(chat_id=message.chat.id, text = workSaturdaysText, reply_markup = markup)
 
@@ -303,7 +307,7 @@ def messageListener(message):
             text += "За цим посиланням ви можете переглянути розклад та графік НП: \n"
             text += "https://sites.google.com/polytechnic.co.cc/main/розклад-занять"
 
-            print("Education Process Plan")
+            print("Education Process Plan: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             tbot.send_message(chat_id=message.chat.id, text= text)
         
     if message.text == AdditionalFuncButtons.COLLEGE_MAP:
@@ -311,7 +315,7 @@ def messageListener(message):
         if checkRegistration(message,headers):
             markup = botMarkup.collegeMapMarkup()
 
-            print("College map")
+            print("College map: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             tbot.send_message(chat_id=message.chat.id, text= "Виберіть поверх", reply_markup = markup)
             tbot.register_next_step_handler(message, showCollegeFloor)
 
@@ -326,7 +330,7 @@ def messageListener(message):
 
             markup = botMarkup.mainMenuMarkup()
             
-            print("Show ring schedule")
+            print("Show ring schedule: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             tbot.send_message(chat_id=message.chat.id, text = bellScheduleText, reply_markup = markup)
 
 
@@ -384,7 +388,7 @@ def scheduleByDay(message, headers):
         dayNumber = formatDayToNumber(message)
         schedule = getScheduleForRegUser(headers, dayNumber, userData)
 
-        print("Find by date: done")
+        print("Find by date-done: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         
         markup = botMarkup.mainMenuMarkup()
         user = getUserId(getUserById(userId, headers))
@@ -403,7 +407,7 @@ def finalTeacherSearch(message, headers, par):
         par = message.text
         teacherData = getTeacherIdForUse(headers, par)
         teacherId = extractTeacherId(teacherData)
-        print("Find by teacher: done")
+        print("Find by teacher-done: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         par = teacherId
         markup = botMarkup.mainMenuMarkup()
@@ -424,7 +428,7 @@ def finalGroupSearch(message, headers, par):
         par = message.text
         groupData = getGroupByNumber(headers, par)
         groupId = extractGroupId(groupData)
-        print("Find by group: done")
+        print("Find by group-done: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         par = groupId
 
@@ -445,7 +449,7 @@ def showGroups(message, headers):
 
         groupsByCourse = groupByCourse(headers, par)
         groupsButtonNames = groupsList(groupsByCourse)
-        print("Find by group: group")
+        print("Find by group-group: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         markup = botMarkup.fiveMarkup(groupsButtonNames)
         tbot.send_message(chat_id=message.chat.id, text= "Оберіть групу:", reply_markup=markup)
@@ -460,7 +464,7 @@ def showTeachers(message, headers):
 
         teachersByDiscipline = teacherByDiscipline(headers, par)
         teacherButtonNames = teachersList(teachersByDiscipline)
-        print("Find by teacher: teacher")
+        print("Find by teacher-teacher: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         markup = botMarkup.tripleMarkup(teacherButtonNames)
         tbot.send_message(chat_id=message.chat.id, text= "Оберіть викладача:", reply_markup=markup)
@@ -517,7 +521,7 @@ def getAdminPin(message):
         print("Status: " + str(pinStatus))
 
         if pinStatus == "true":
-            print("Pin is correct, write a message")
+            print("Pin is correct, write a message: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
             pinStatus = True
             replyText = "🟢 Пін введено правильно 🟢\n\nВведіть повідомлення, яке буде розіслано усім користувачам бота"
@@ -525,7 +529,7 @@ def getAdminPin(message):
             tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
             tbot.register_next_step_handler(message, getMessage)
         else:
-            print("Incorrect pin, /admin called")
+            print("Incorrect pin, /admin called: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
             replyText = "🔴 Невірний пін 🔴"
             markup =  botMarkup.mainMenuButtonMarkup()
             tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
@@ -538,7 +542,7 @@ def getMessage(message):
     if MainMenuCheck(message):
         returnToMainMenu(message)
     else:
-        print("Message wroten, confirmation required")
+        print("Message wroten, confirmation required: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         adminMessage = message.text
         replyText = "Ви точно хочете надіслати повідомлення?"
         markup = botMarkup.confirmationMarkup()
@@ -557,28 +561,28 @@ def confirmation(message, adminMessage):
         users = getUsers(headers)
         userIds = allUsersIds(users)
         markupMenu = botMarkup.mainMenuMarkup()
-        print("Message confirmed, sending started")
+        print("Message confirmed, sending started: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         
         for id in userIds:
             try:
-                print("Sending message to " + id)
+                print("Sending message to TGID" + id)
                 tbot.send_message(chat_id=id, text= adminMessage, reply_markup = markupMenu)
                 print(id + ", Done\n")
             except:
-                print("Error in sending message to " + id +"\n")      
+                print("Error in sending message to TGID" + id +"\n")      
 
     elif message.text == Confirmator.NO.value:
-        print("Main menu")
+        print("Main menu: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         returnToMainMenu(message)
         
     elif message.text == Confirmator.EDIT.value:
-        print("Message editing mode")
+        print("Message editing mode: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         replyText = "Відредагуйте ваше повідомлення, скопіювавши його\n\n" + adminMessage
         markup =  botMarkup.mainMenuButtonMarkup()
         tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
         tbot.register_next_step_handler(message, getMessage)
     else:
-        print('No confirmation, trying again')
+        print("No confirmation, trying again: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
         replyText = "Помилка підтвердження. Ви не вибрали кнопку.\nВи точно хочете надіслати повідомлення?"
         markup = botMarkup.confirmationMarkup()     
         tbot.send_message(chat_id=message.chat.id, text= replyText, reply_markup = markup)
@@ -589,7 +593,7 @@ def registerAsTeacher(headers,message):
  
     disciplines = disciplinesApi(headers)
     disciplinesButtonsNames = disciplinesList(disciplines)
-    print("Register as teacher: discipline")
+    print("Register as teacher-discipline: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
     userId = message.from_user.id
     markup = botMarkup.tripleRegMarkup(disciplinesButtonsNames, userId, headers)
@@ -601,7 +605,7 @@ def registerAsStudent(headers,message):
 
     courses = coursesApi(headers)
     coursesButtonsNames = coursesList(courses)
-    print("Register as student: course")
+    print("Register as student-course: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
     
     userId = message.from_user.id
     markup = botMarkup.doubleRegMarkup(coursesButtonsNames, userId, headers)
@@ -618,7 +622,7 @@ def getTeachersNames(message, headers):
         par = message.text
         teachersByDiscipline = teacherByDiscipline(headers, par)
         teacherButtonNames = teachersList(teachersByDiscipline)
-        print("Register as teacher: teacher")
+        print("Register as teacher-teacher: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         userId = message.from_user.id
         markup = botMarkup.tripleRegMarkup(teacherButtonNames, userId, headers)
@@ -637,7 +641,7 @@ def getGroupsNumbers(message, headers):
 
         groupsByCourse = groupByCourse(headers, par)
         groupsButtonNames = groupsList(groupsByCourse)
-        print("Register as group: group")
+        print("Register as group-group: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         userId = message.from_user.id
         markup = botMarkup.fiveRegMarkup(groupsButtonNames, userId, headers)
@@ -655,7 +659,7 @@ def getRegTeacherId(message, headers):
         par = message.text
         teacherData = getTeacherIdForUse(headers, par)
         teacherId = extractTeacherId(teacherData)
-        print("Register as teacher: done")
+        print("Register as teacher-done: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         userId = message.from_user.id
         
@@ -680,7 +684,7 @@ def getRegGroupId(message, headers):
         par = message.text
         groupData = getGroupByNumber(headers, par)
         groupId = extractGroupId(groupData)
-        print("Register as student: done")
+        print("Register as student-done: TG " + str(message.from_user.username) + " " + str(message.from_user.id))
 
         userId = message.from_user.id
 

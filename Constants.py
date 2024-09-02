@@ -5,7 +5,7 @@
 import os
 
 class Constants(object):
-    version ="(v1.0.6)"
+    version ="(v1.0.7)"
 
     botToken = os.environ['BOT_TOKEN']
     username = os.environ['USERNAME']

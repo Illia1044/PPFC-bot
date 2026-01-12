@@ -94,6 +94,7 @@ def changeCreator(jsonStr, userData, userMarker):
 
         dayNumber = change.dayNumber
         isNumerator = change.isNumerator
+        print(isNumerator)
         if date not in changes:
             changes[date] = []
 

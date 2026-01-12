@@ -12,7 +12,6 @@ from Constants import Constants
 
 username = Constants.username
 password = Constants.password
-
 baseLink = Constants.baseLink
 
 def authenticate():
